@@ -1,1 +1,1 @@
-# Asteriod-Pygame
+# Asteroid-Pygame

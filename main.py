@@ -2,9 +2,28 @@ import sys
 import pygame
 
 
-def laser_update(laser_list, speed=70):
+def laser_update(laser_list, speed=300):
     for rect in laser_list:
         rect.y -= round(speed * dt)
+        if rect.bottom < 0:
+            laser_list.remove(rect)
+
+
+def score_display():
+    display = f"SCORE: {len(laser_list)}"
+    score = font_credit.render(display, True, (200, 200, 200))
+    score_rect = score.get_rect(center=((WINDOW_WIDTH - (WINDOW_WIDTH-80)), 35))
+    pygame.draw.rect(display_surface, (200, 200, 200), score_rect.inflate(30, 30), width=5, border_radius=10)
+    display_surface.blit(score, score_rect)
+
+
+def shoot_timer(can_shoot_p, duration=500):
+    if not can_shoot_p:
+        current_time = pygame.time.get_ticks()
+        if duration < current_time - shoot_time:
+            can_shoot_p = True
+    return can_shoot_p
+
 
 pygame.init()
 
@@ -22,7 +41,6 @@ ship_rect = ship_surf.get_rect(center=(WINDOW_WIDTH / 2, (WINDOW_HEIGHT - 100)))
 ship_flip = pygame.transform.flip(ship_surf, False, True)
 
 laser = pygame.image.load("./graphics/laser.png").convert_alpha()
-# laser_rect = laser.get_rect(midbottom=ship_rect.midtop)
 laser_list = []
 
 font = pygame.font.Font("./graphics/subatomic.ttf", 70)
@@ -37,8 +55,8 @@ text_credit_rect = text_credit.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIG
 text_credit1 = font_credit.render("Director : Ichigo Kurosaki", True, (200, 200, 200))
 text_credit1_rect = text_credit1.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) + 150))
 
-text_field_rect = pygame.rect.Rect(200, 200, 400, 400)
-# test_rect = pygame.rect.Rect(300, 500, 200, 150)
+can_shoot = True
+shoot_time = False
 
 while True:
 
@@ -49,24 +67,23 @@ while True:
             pygame.quit()
             sys.exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and can_shoot:
             laser_rect = laser.get_rect(midbottom=ship_rect.midtop)
             laser_list.append(laser_rect)
+            can_shoot = False
+            shoot_time = pygame.time.get_ticks()
 
-    display_surface.fill((200, 200, 200))
+    display_surface.fill((255, 255, 255))
     display_surface.blit(background, (0, 0))
 
-    # if ship_rect.y > 0:
-    #     ship_rect.y -= 1
-
     if text_rect.y > -80:
-        text_rect.y -= round(200 * dt)
+        text_rect.y -= round(150 * dt)
 
     if text_credit_rect.y > -20:
-        text_credit_rect.y -= round(200 * dt)
+        text_credit_rect.y -= round(150 * dt)
 
     if text_credit1_rect.y > -20:
-        text_credit1_rect.y -= round(200 * dt)
+        text_credit1_rect.y -= round(150 * dt)
 
     pygame.draw.rect(display_surface, "blue", text_rect.inflate(50, 30), width=7, border_radius=5)
     display_surface.blit(text, text_rect)
@@ -76,11 +93,16 @@ while True:
     if text_credit1_rect.y <= -20:
 
         ship_rect.center = pygame.mouse.get_pos()
+
+        laser_update(laser_list)
+        score_display()
+        can_shoot = shoot_timer(can_shoot, 500)
+
         display_surface.blit(ship_surf, ship_rect)
-        # pygame.draw.rect(display_surface, (200, 200, 200), test_rect, width=10, border_radius=5)
-        # pygame.draw.lines(display_surface, (200, 200, 200), False, ((0, 0), (70, 100), (100, 160), (160, 250)), 5)
+        score_display()
+
         for rect in laser_list:
-            laser_update(laser_list)
             display_surface.blit(laser, rect)
 
     pygame.display.update()
+    print(len(laser_list))
