@@ -4,7 +4,7 @@ import pygame
 
 
 # Laser Movement
-def laser_update(laser_list_1, speed=300):
+def laser_update(laser_list_1, speed=500):
     for rect_1 in laser_list_1:
         rect_1.y -= round(speed * dt)
         if rect_1.bottom < 0:
@@ -12,11 +12,14 @@ def laser_update(laser_list_1, speed=300):
 
 
 # Rapid Laser Movement
-def rapid_laser_update(laser_list_1, speed=500):
-    for rect_1 in laser_list_1:
+def rapid_laser_update(laser_list_2, speed=500):
+    item_to_remove = []
+    for rect_1 in laser_list_2:
         rect_1.y -= round(speed * dt)
-        if rect_1.bottom < 0:
-            laser_list_1.remove(rect_1)
+        if rect_1.top < 0:
+            item_to_remove.append(rect_1)
+    for item in item_to_remove:
+        laser_list_2.remove(item)
 
 
 # Meteor Movement
@@ -29,22 +32,22 @@ def meteor_update(meteor_list_1, speed=400):
             meteor_list_1.remove(meteor_tuple_1)
         if meteor_rect_1.right > WINDOW_WIDTH:
             meteor_list_1.remove(meteor_tuple_1)
-        if meteor_rect_1.left < 0:
+        if meteor_rect_1.left < WINDOW_WIDTH - WINDOW_WIDTH:
             meteor_list_1.remove(meteor_tuple_1)
 
 
 # Bomb Movement
-def bomb_update(bomb_list1, speed=400):
-    for bomb_tuple_1 in bomb_list1:
+def bomb_update(bomb_list_1, speed=400):
+    for bomb_tuple_1 in bomb_list_1:
         direction_1 = bomb_tuple_1[1]
         bomb_rect_1 = bomb_tuple_1[0]
         bomb_rect_1.center += direction_1 * speed * dt
         if bomb_rect_1.top > WINDOW_HEIGHT:
-            bomb_list1.remove(bomb_tuple_1)
+            bomb_list_1.remove(bomb_tuple_1)
         if bomb_rect_1.right > WINDOW_WIDTH:
-            bomb_list1.remove(bomb_tuple_1)
+            bomb_list_1.remove(bomb_tuple_1)
         if bomb_rect_1.left < 0:
-            bomb_list1.remove(bomb_tuple_1)
+            bomb_list_1.remove(bomb_tuple_1)
 
 
 # Heart Movement
@@ -94,7 +97,7 @@ def life_display():
 
 
 # Shooting Timer
-def shoot_timer(can_shoot_p, duration=300):
+def shoot_timer(can_shoot_p, duration=0):
     if not can_shoot_p:
         current_time = pygame.time.get_ticks()
         if duration < current_time - shoot_time:
@@ -119,17 +122,18 @@ ship_flip = pygame.transform.flip(ship_surf, False, True)
 
 laser = pygame.image.load("./graphics/laser.png").convert_alpha()
 laser_list = []
+laser_list_p = []
 
 meteor = pygame.image.load("./graphics/meteor.png").convert_alpha()
 meteor_list = []
 
-heart = pygame.image.load("./graphics/ship.png").convert_alpha()
+heart = pygame.image.load("./graphics/heart.png").convert_alpha()
 heart_list = []
 
-bomb = pygame.image.load("./graphics/laser.png").convert_alpha()
+bomb = pygame.image.load("./graphics/bomb.png").convert_alpha()
 bomb_list = []
 
-fuel = pygame.image.load("./graphics/laser.png").convert_alpha()
+fuel = pygame.image.load("./graphics/fuel.png").convert_alpha()
 fuel_list = []
 
 font = pygame.font.Font("./graphics/subatomic.ttf", 70)
@@ -145,10 +149,11 @@ text_rect = text.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2)))
 text_credit = font_credit.render("Created By : Imisioluwa Isong", True, (200, 200, 200))
 text_credit_rect = text_credit.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) + 100))
 
-text_credit1 = font_credit.render("Director : Amaechi Daniel", True, (200, 200, 200))
+text_credit1 = font_credit.render("Idea BY : Uchiha Madara", True, (200, 200, 200))
 text_credit1_rect = text_credit1.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) + 150))
 
 can_shoot = True
+rapid = True
 shoot_time = False
 life_left = 5
 total_score = 0
@@ -167,12 +172,11 @@ laser_timer = pygame.event.custom_type()
 pygame.time.set_timer(laser_timer, 100)
 
 fuel_timer = pygame.event.custom_type()
-pygame.time.set_timer(fuel_timer, 100)
-
+pygame.time.set_timer(fuel_timer, 30000)
 
 background_sound.play(-1)
-background_sound.set_volume(0.3)
-
+background_sound.set_volume(0.1)
+has_fuel = False
 
 while True:
 
@@ -184,7 +188,7 @@ while True:
             sys.exit()
 
         # Tapping button to release laser
-        if event.type == pygame.MOUSEBUTTONDOWN and can_shoot:
+        if event.type == pygame.MOUSEBUTTONDOWN and can_shoot and text_credit1_rect.y <= -20:
             # if ship_rect.center == [(0, WINDOW_WIDTH), (620, WINDOW_HEIGHT)]:
             laser_rect = laser.get_rect(midbottom=ship_rect.midtop)
             laser_list.append(laser_rect)
@@ -198,15 +202,23 @@ while True:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             meteor_rect = meteor.get_rect(center=(x_pos, y_pos))
-            direction = pygame.math.Vector2(uniform(0.5, -0.5), 1)
+            direction = pygame.math.Vector2(uniform(0.3, -0.3), 1)
             meteor_list.append((meteor_rect, direction))
+
+        if event.type == laser_timer and text_credit1_rect.y <= -20:
+            if has_fuel:
+                x_pos = randint(0, WINDOW_WIDTH)
+                y_pos = randint(WINDOW_HEIGHT - 10, WINDOW_HEIGHT)
+                laser_rect_p = laser.get_rect(center=(x_pos, y_pos))
+                laser_list_p.append(laser_rect_p)
+                rapid_laser_update(laser_list_p)
 
         # Automatic release of the life
         if event.type == heart_timer and text_credit1_rect.y <= -20:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             heart_rect = heart.get_rect(center=(x_pos, y_pos))
-            direction = pygame.math.Vector2(uniform(0.3, -0.3), 1)
+            direction = pygame.math.Vector2(uniform(0., -0.0), 1)
             heart_list.append((heart_rect, direction))
 
         # Automatic release of bomb
@@ -214,7 +226,7 @@ while True:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             bomb_rect = bomb.get_rect(center=(x_pos, y_pos))
-            direction = pygame.math.Vector2(uniform(0.5, -0.4), 1)
+            direction = pygame.math.Vector2(uniform(0.0, -0.0), 1)
             bomb_list.append((bomb_rect, direction))
 
         # Automatic release of fuel
@@ -222,7 +234,7 @@ while True:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             fuel_rect = fuel.get_rect(center=(x_pos, y_pos))
-            direction = pygame.math.Vector2(uniform(0.5, -0.4), 1)
+            direction = pygame.math.Vector2(uniform(0.0, -0.0), 1)
             fuel_list.append((fuel_rect, direction))
 
     display_surface.fill((255, 255, 255))
@@ -248,10 +260,12 @@ while True:
 
         laser_update(laser_list)
         score_display()
-        can_shoot = shoot_timer(can_shoot, 300)
+        can_shoot = shoot_timer(can_shoot, 250)
+
         meteor_update(meteor_list)
         heart_update(heart_list)
-        bomb_update(heart_list)
+        bomb_update(bomb_list)
+        fuel_movement(fuel_list)
 
         display_surface.blit(ship_surf, ship_rect)
         score_display()
@@ -263,14 +277,18 @@ while True:
         for meteor_tuple in meteor_list:
             display_surface.blit(meteor, meteor_tuple[0])
 
-        for heart_tuple in heart_list:
-            display_surface.blit(heart, heart_tuple[0])
-
         for bomb_tuple in bomb_list:
             display_surface.blit(bomb, bomb_tuple[0])
 
+        for heart_tuple in heart_list:
+            display_surface.blit(heart, heart_tuple[0])
+
         for fuel_tuple in fuel_list:
             display_surface.blit(fuel, fuel_tuple[0])
+
+        for laser_rect_p in laser_list_p:
+            rapid_laser_update(laser_list_p)
+            display_surface.blit(laser, laser_rect_p)
 
         # Ship in contact with Meteor
         for meteor_tuple in meteor_list:
@@ -279,7 +297,7 @@ while True:
                 meteor_list.remove(meteor_tuple)
                 life_left -= 1
 
-        # Bomb in contact with Bomb
+        # Ship in contact with Bomb
         for bomb_tuple in bomb_list:
             bomb_rect = bomb_tuple[0]
             if bomb_rect.colliderect(ship_rect):
@@ -316,18 +334,17 @@ while True:
             fuel_rect = fuel_tuple[0]
             if fuel_rect.colliderect(ship_rect):
                 fuel_list.remove(fuel_tuple)
-                rapid_laser_update(laser_list)
+                has_fuel = True
 
-        # Keys Activation
-        keys = pygame.key.get_pressed()
-        if life_left < 0:
-            if keys[pygame.K_q]:
-                break
-            elif keys[pygame.K_t]:
-                life_left = 5
-                continue
-            elif keys[pygame.K_m]:
-                display_surface.fill((200, 200, 200))
+        for laser_rect_p in laser_list_p:
+            for meteor_tuple in meteor_list:
+                meteor_rect = meteor_tuple[0]
+                if laser_rect_p.colliderect(meteor_rect):
+                    laser_list_p.remove(laser_rect_p)
+                    meteor_list.remove(meteor_tuple)
+                    total_score += 1
+                    explosion_sound.play()
+                    explosion_sound.set_volume(0.2)
 
     # Congratulating player when he gets a particular high score
     if total_score == 50:
@@ -342,15 +359,21 @@ while True:
         display_surface.blit(text_wow, text_wow_rect)
         pygame.draw.rect(display_surface, "green", text_wow_rect.inflate(50, 30), width=7, border_radius=5)
 
-    if life_left < 0:
+    if life_left <= 0:
         text_fail = font.render("You Lose Try Again!", True, (200, 200, 200))
         text_fail_rect = text_fail.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2)))
         display_surface.blit(text_fail, text_fail_rect)
         pygame.draw.rect(display_surface, "red", text_fail_rect.inflate(50, 30), width=7, border_radius=5)
 
+        life_left = 5
+        total_score = 0
+        laser_list = []
+        meteor_list = []
+        heart_list = []
+        bomb_list = []
+        fuel_list = []
+
     pygame.display.update()
 
-# Pause the game when the life runs out Add a new obstacle like bomb that takes two heart Add a life refill option
-# A way to increase the meteor drop over time
-# When user gets a certain score pause and congratulate Draft a menu tab once credits are done rolling so that user
-# can click play, about, help, settings, quit, Highscore and implement a method for everything
+
+
