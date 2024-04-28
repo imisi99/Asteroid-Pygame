@@ -96,7 +96,7 @@ def life_display():
     display_surface.blit(life, life_rect)
 
 
-# Shooting Timer
+# Shooting Timer for normal laser
 def shoot_timer(can_shoot_p, duration=0):
     if not can_shoot_p:
         current_time = pygame.time.get_ticks()
@@ -149,7 +149,7 @@ text_rect = text.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2)))
 text_credit = font_credit.render("Created By : Imisioluwa Isong", True, (200, 200, 200))
 text_credit_rect = text_credit.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) + 100))
 
-text_credit1 = font_credit.render("Idea BY : Uchiha Madara", True, (200, 200, 200))
+text_credit1 = font_credit.render("Idea By : Uchiha Madara", True, (200, 200, 200))
 text_credit1_rect = text_credit1.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) + 150))
 
 can_shoot = True
@@ -157,6 +157,8 @@ rapid = True
 shoot_time = False
 life_left = 5
 total_score = 0
+has_fuel = False
+rapid_duration = 0
 
 # Timer init
 meteor_timer = pygame.event.custom_type()
@@ -169,14 +171,13 @@ bomb_timer = pygame.event.custom_type()
 pygame.time.set_timer(bomb_timer, 5000)
 
 laser_timer = pygame.event.custom_type()
-pygame.time.set_timer(laser_timer, 100)
+pygame.time.set_timer(laser_timer, 50)
 
 fuel_timer = pygame.event.custom_type()
-pygame.time.set_timer(fuel_timer, 30000)
+pygame.time.set_timer(fuel_timer, 25000)
 
 background_sound.play(-1)
 background_sound.set_volume(0.1)
-has_fuel = False
 
 while True:
 
@@ -205,8 +206,16 @@ while True:
             direction = pygame.math.Vector2(uniform(0.3, -0.3), 1)
             meteor_list.append((meteor_rect, direction))
 
-        if event.type == laser_timer and text_credit1_rect.y <= -20:
-            if has_fuel:
+        # Ship hitting fuel for rapid fire
+        for fuel_tuple in fuel_list:
+            fuel_rect = fuel_tuple[0]
+            if fuel_rect.colliderect(ship_rect):
+                fuel_list.remove(fuel_tuple)
+                has_fuel = True
+                rapid_duration = pygame.time.get_ticks() + 10000
+
+        if event.type == laser_timer and text_credit1_rect.y <= -20 and life_left >= 0:
+            if has_fuel and pygame.time.get_ticks() < rapid_duration:
                 x_pos = randint(0, WINDOW_WIDTH)
                 y_pos = randint(WINDOW_HEIGHT - 10, WINDOW_HEIGHT)
                 laser_rect_p = laser.get_rect(center=(x_pos, y_pos))
@@ -236,6 +245,10 @@ while True:
             fuel_rect = fuel.get_rect(center=(x_pos, y_pos))
             direction = pygame.math.Vector2(uniform(0.0, -0.0), 1)
             fuel_list.append((fuel_rect, direction))
+
+    if pygame.time.get_ticks() >= rapid_duration and life_left >= 0:
+        has_fuel = False
+
     if life_left >= 0:
         display_surface.fill((255, 255, 255))
         display_surface.blit(background, (0, 0))
@@ -330,13 +343,6 @@ while True:
                     if life_left < 5:
                         life_left += 1
 
-            # Ship hitting fuel for rapid fire
-            for fuel_tuple in fuel_list:
-                fuel_rect = fuel_tuple[0]
-                if fuel_rect.colliderect(ship_rect):
-                    fuel_list.remove(fuel_tuple)
-                    has_fuel = True
-
             for laser_rect_p in laser_list_p:
                 for meteor_tuple in meteor_list:
                     meteor_rect = meteor_tuple[0]
@@ -355,7 +361,13 @@ while True:
             pygame.draw.rect(display_surface, "green", text_wow_rect.inflate(50, 30), width=7, border_radius=5)
 
         if total_score == 100:
-            text_wow = font.render("KILLING IT!!", True, (200, 200, 200))
+            text_wow = font.render("AWESOME!!", True, (200, 200, 200))
+            text_wow_rect = text_wow.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2)))
+            display_surface.blit(text_wow, text_wow_rect)
+            pygame.draw.rect(display_surface, "green", text_wow_rect.inflate(50, 30), width=7, border_radius=5)
+
+        if total_score == 150:
+            text_wow = font.render("UNSTOPPABLE!!", True, (200, 200, 200))
             text_wow_rect = text_wow.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2)))
             display_surface.blit(text_wow, text_wow_rect)
             pygame.draw.rect(display_surface, "green", text_wow_rect.inflate(50, 30), width=7, border_radius=5)
@@ -367,6 +379,7 @@ while True:
         display_surface.blit(text_fail, text_fail_rect)
         pygame.draw.rect(display_surface, "red", text_fail_rect.inflate(50, 30), width=7, border_radius=5)
         keys = pygame.key.get_pressed()
+
         if keys[pygame.K_p]:
             life_left = 5
             total_score = 0
@@ -375,6 +388,24 @@ while True:
             heart_list = []
             bomb_list = []
             fuel_list = []
+
+            meteor_timer = pygame.event.custom_type()
+            pygame.time.set_timer(meteor_timer, 500)
+
+            heart_timer = pygame.event.custom_type()
+            pygame.time.set_timer(heart_timer, 20000)
+
+            bomb_timer = pygame.event.custom_type()
+            pygame.time.set_timer(bomb_timer, 5000)
+
+            laser_timer = pygame.event.custom_type()
+            pygame.time.set_timer(laser_timer, 50)
+
+            fuel_timer = pygame.event.custom_type()
+            pygame.time.set_timer(fuel_timer, 25000)
+
+            has_fuel = False
+
         elif keys[pygame.K_q]:
             pygame.quit()
             sys.exit()
