@@ -20,9 +20,7 @@ What the game entails:
 
 The game has been made into an executable file using pyinstaller therefore there is no need for any package installation to run the game, It can be downloaded [here]().    
 Here is the installation Process:
- - Navigate to the dist folder in the project
- - Move the executable file in the dist folder outside to the pygame folder.   
- - Then right-click and create a shortcut on your desktop to be able to run the game from your desktop.   
+ - Navigate to the main folder and then
 
 To run the game on your terminal however you would run have to clone the [repo]() and run this command on your terminal:
  -      pip intall requirements.txt
