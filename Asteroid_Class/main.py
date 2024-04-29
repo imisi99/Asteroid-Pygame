@@ -23,6 +23,8 @@ class Ship(pygame.sprite.Sprite):
         self.shoot_time = None
         self.laser_sound = pygame.mixer.Sound("./sounds/laser.ogg")
 
+        self.mask = pygame.mask.from_surface(self.image)
+
     def get_input(self):
         pos = pygame.mouse.get_pos()
         self.rect.center = pos
@@ -41,10 +43,14 @@ class Ship(pygame.sprite.Sprite):
             self.laser_sound.play()
             self.can_shoot = False
 
+    def meteor_collision(self):
+        pygame.sprite.spritecollide(self, meteor_group, True, pygame.sprite.collide_mask)
+
     def update(self):
         self.get_input()
         self.mouse_click()
         self.laser_timer()
+        self.meteor_collision()
 
 
 class Laser(pygame.sprite.Sprite):
@@ -55,26 +61,41 @@ class Laser(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=pos)
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(0, -1)
-        self.speed = 600
+        self.speed = 800
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def meteor_collision(self):
+        if pygame.sprite.spritecollide(self, meteor_group, True, pygame.sprite.collide_mask):
+            self.kill()
 
     def update(self):
         self.pos += self.speed * dt * self.direction
         self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        self.meteor_collision()
+        if self.rect.top < 0:
+            self.kill()
 
 
 class Meteor(pygame.sprite.Sprite):
     def __init__(self, pos, group):
         super().__init__(group)
-
-        self.image = pygame.image.load('./graphics/meteor.png').convert_alpha()
+        meteor = pygame.image.load('./graphics/meteor.png').convert_alpha()
+        meteor_scale = pygame.math.Vector2(meteor.get_size()) * uniform(1.0, 1.1)
+        meteor_image = pygame.transform.scale(meteor, meteor_scale)
+        self.image = meteor_image
         self.rect = self.image.get_rect(center=pos)
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(uniform(-0.3, 0.3), 1)
         self.speed = randint(400, 500)
 
+        self.mask = pygame.mask.from_surface(self.image)
+
     def update(self):
         self.pos += self.speed * self.direction * dt
         self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        if self.rect.bottom > WINDOW_HEIGHT:
+            self.kill()
 
 
 class Score:
