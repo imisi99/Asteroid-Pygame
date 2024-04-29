@@ -30,7 +30,7 @@ class Ship(pygame.sprite.Sprite):
     def laser_timer(self):
         if not self.can_shoot:
             current_time = pygame.time.get_ticks()
-            if current_time - self.shoot_time >= 400:
+            if current_time - self.shoot_time >= 370:
                 self.can_shoot = True
 
     def mouse_click(self):
@@ -70,11 +70,24 @@ class Meteor(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=pos)
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(uniform(-0.3, 0.3), 1)
-        self.speed = randint(350, 470)
+        self.speed = randint(400, 500)
 
     def update(self):
         self.pos += self.speed * self.direction * dt
         self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+
+
+class Score:
+    def __init__(self):
+        self.font = pygame.font.Font('./graphics/subatomic.ttf', 20)
+
+    def display(self):
+        total_score = 5
+        text = f"SCORE: {total_score}"
+        text_surf = self.font.render(text, True, (200, 200, 200))
+        text_rect = text_surf.get_rect(center=((WINDOW_WIDTH - (WINDOW_WIDTH - 80)), 35))
+        pygame.draw.rect(display_surface, (200, 200, 200), text_rect.inflate(30, 30), width=5, border_radius=10)
+        display_surface.blit(text_surf, text_rect)
 
 
 ship_group = pygame.sprite.GroupSingle()
@@ -86,6 +99,7 @@ meteor_timer = pygame.event.custom_type()
 pygame.time.set_timer(meteor_timer, randint(500, 600))
 meteor_group = pygame.sprite.Group()
 
+score = Score()
 
 while True:
 
@@ -98,12 +112,13 @@ while True:
             sys.exit()
 
         if event.type == meteor_timer:
-            meteor_x_pos = randint(0, WINDOW_WIDTH)
+            meteor_x_pos = randint(100, WINDOW_WIDTH-100)
             meteor_y_pos = randint(-150, -100)
             Meteor((meteor_x_pos, meteor_y_pos), meteor_group)
 
     display_surface.blit(back_ground, (0, 0))
 
+    score.display()
     ship_group.draw(display_surface)
     laser_group.draw(display_surface)
     meteor_group.draw(display_surface)
