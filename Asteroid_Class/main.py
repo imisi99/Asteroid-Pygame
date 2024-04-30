@@ -44,10 +44,14 @@ class Ship(pygame.sprite.Sprite):
             self.can_shoot = False
 
     def collision(self):
-        pygame.sprite.spritecollide(self, meteor_group, True, pygame.sprite.collide_mask)
-        pygame.sprite.spritecollide(self, bomb_group, True, pygame.sprite.collide_mask)
-        pygame.sprite.spritecollide(self, heart_group, True, pygame.sprite.collide_mask)
-        pygame.sprite.spritecollide(self, fuel_group, True, pygame.sprite.collide_mask)
+        if pygame.sprite.spritecollide(self, meteor_group, True, pygame.sprite.collide_mask):
+            pass
+        if pygame.sprite.spritecollide(self, bomb_group, True, pygame.sprite.collide_mask):
+            pass
+        if pygame.sprite.spritecollide(self, heart_group, True, pygame.sprite.collide_mask):
+            pass
+        if pygame.sprite.spritecollide(self, fuel_group, True, pygame.sprite.collide_mask):
+            pass
 
     def update(self):
         self.get_input()
@@ -162,6 +166,30 @@ class Fuel(pygame.sprite.Sprite):
             self.kill()
 
 
+class Rapid(pygame.sprite.Sprite):
+    def __init__(self, pos, group):
+        super().__init__(group)
+
+        self.image = pygame.image.load("./graphics/laser.png").convert_alpha()
+        self.rect = self.image.get_rect(midbottom=pos)
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2(0, -1)
+        self.speed = 1000
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def meteor_collision(self):
+        if pygame.sprite.spritecollide(self, meteor_group, True, pygame.sprite.collide_mask):
+            self.kill()
+
+    def update(self):
+        self.pos += self.speed * dt * self.direction
+        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        self.meteor_collision()
+        if self.rect.top < 0:
+            self.kill()
+
+
 class Score:
     def __init__(self):
         self.font = pygame.font.Font('./graphics/subatomic.ttf', 20)
@@ -209,6 +237,9 @@ fuel_timer = pygame.event.custom_type()
 pygame.time.set_timer(fuel_timer, randint(28000, 32000))
 fuel_group = pygame.sprite.Group()
 
+laser_timer = pygame.event.custom_type()
+pygame.time.set_timer(laser_timer, randint(170, 200))
+rapid_laser_group = pygame.sprite.Group()
 
 score = Score()
 life = Life()
@@ -243,6 +274,11 @@ while True:
             fuel_y_pos = randint(-150, -100)
             Fuel((fuel_x_pos, fuel_y_pos), heart_group)
 
+        if event.type == laser_timer:
+            laser_x_pos = randint(10, WINDOW_WIDTH-10)
+            laser_y_pos = randint(WINDOW_HEIGHT+50, WINDOW_HEIGHT+100)
+            Rapid((laser_x_pos, laser_y_pos), rapid_laser_group)
+
     display_surface.blit(back_ground, (0, 0))
 
     ship_group.update()
@@ -251,6 +287,7 @@ while True:
     bomb_group.update()
     heart_group.update()
     fuel_group.update()
+    rapid_laser_group.update()
 
     score.display()
     life.display()
@@ -261,5 +298,6 @@ while True:
     bomb_group.draw(display_surface)
     heart_group.draw(display_surface)
     fuel_group.draw(display_surface)
+    rapid_laser_group.draw(display_surface)
 
     pygame.display.update()
