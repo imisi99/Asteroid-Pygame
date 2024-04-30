@@ -43,14 +43,17 @@ class Ship(pygame.sprite.Sprite):
             self.laser_sound.play()
             self.can_shoot = False
 
-    def meteor_collision(self):
+    def collision(self):
         pygame.sprite.spritecollide(self, meteor_group, True, pygame.sprite.collide_mask)
+        pygame.sprite.spritecollide(self, bomb_group, True, pygame.sprite.collide_mask)
+        pygame.sprite.spritecollide(self, heart_group, True, pygame.sprite.collide_mask)
+        pygame.sprite.spritecollide(self, fuel_group, True, pygame.sprite.collide_mask)
 
     def update(self):
         self.get_input()
         self.mouse_click()
         self.laser_timer()
-        self.meteor_collision()
+        self.collision()
 
 
 class Laser(pygame.sprite.Sprite):
@@ -96,17 +99,91 @@ class Meteor(pygame.sprite.Sprite):
         self.rect.topleft = (round(self.pos.x), round(self.pos.y))
         if self.rect.bottom > WINDOW_HEIGHT:
             self.kill()
+        if self.rect.left < 0:
+            self.kill()
+        if self.rect.right > WINDOW_WIDTH:
+            self.kill()
+
+
+class Bomb(pygame.sprite.Sprite):
+    def __init__(self, pos, group):
+        super().__init__(group)
+        bomb = pygame.image.load('./graphics/bomb.png').convert_alpha()
+        self.image = bomb
+        self.rect = self.image.get_rect(center=pos)
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2(uniform(-0.15, 0.1), 1)
+        self.speed = randint(400, 500)
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.pos += self.speed * self.direction * dt
+        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        if self.rect.top > WINDOW_HEIGHT:
+            self.kill()
+
+
+class Heart(pygame.sprite.Sprite):
+    def __init__(self, pos, group):
+        super().__init__(group)
+        heart = pygame.image.load('./graphics/heart.png').convert_alpha()
+        self.image = heart
+        self.rect = self.image.get_rect(center=pos)
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2(uniform(-0.15, 0.1), 1)
+        self.speed = randint(400, 500)
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.pos += self.speed * self.direction * dt
+        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        if self.rect.top > WINDOW_HEIGHT:
+            self.kill()
+
+
+class Fuel(pygame.sprite.Sprite):
+    def __init__(self, pos, group):
+        super().__init__(group)
+        fuel = pygame.image.load('./graphics/fuel.png').convert_alpha()
+        self.image = fuel
+        self.rect = self.image.get_rect(center=pos)
+        self.pos = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2(uniform(-0.15, 0.1), 1)
+        self.speed = randint(400, 500)
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.pos += self.speed * self.direction * dt
+        self.rect.topleft = (round(self.pos.x), round(self.pos.y))
+        if self.rect.top > WINDOW_HEIGHT:
+            self.kill()
 
 
 class Score:
     def __init__(self):
         self.font = pygame.font.Font('./graphics/subatomic.ttf', 20)
+        self.total_score = 0
 
     def display(self):
-        total_score = 5
-        text = f"SCORE: {total_score}"
+        text = f"SCORE: {self.total_score}"
         text_surf = self.font.render(text, True, (200, 200, 200))
         text_rect = text_surf.get_rect(center=((WINDOW_WIDTH - (WINDOW_WIDTH - 80)), 35))
+        pygame.draw.rect(display_surface, (200, 200, 200), text_rect.inflate(30, 30), width=5, border_radius=10)
+        display_surface.blit(text_surf, text_rect)
+
+
+class Life:
+    def __init__(self):
+        self.font = pygame.font.Font('./graphics/subatomic.ttf', 20)
+        self.life_left = 5
+
+    def display(self):
+        text = f"LIFE: {self.life_left}"
+        text_surf = self.font.render(text, True, (200, 200, 200))
+        text_rect = text_surf.get_rect(center=((WINDOW_WIDTH-80), 35))
         pygame.draw.rect(display_surface, (200, 200, 200), text_rect.inflate(30, 30), width=5, border_radius=10)
         display_surface.blit(text_surf, text_rect)
 
@@ -120,7 +197,21 @@ meteor_timer = pygame.event.custom_type()
 pygame.time.set_timer(meteor_timer, randint(500, 600))
 meteor_group = pygame.sprite.Group()
 
+bomb_timer = pygame.event.custom_type()
+pygame.time.set_timer(bomb_timer, randint(4500, 5500))
+bomb_group = pygame.sprite.Group()
+
+heart_timer = pygame.event.custom_type()
+pygame.time.set_timer(heart_timer, randint(17000, 20000))
+heart_group = pygame.sprite.Group()
+
+fuel_timer = pygame.event.custom_type()
+pygame.time.set_timer(fuel_timer, randint(28000, 32000))
+fuel_group = pygame.sprite.Group()
+
+
 score = Score()
+life = Life()
 
 while True:
 
@@ -137,15 +228,38 @@ while True:
             meteor_y_pos = randint(-150, -100)
             Meteor((meteor_x_pos, meteor_y_pos), meteor_group)
 
-    display_surface.blit(back_ground, (0, 0))
+        if event.type == bomb_timer:
+            bomb_x_pos = randint(100, WINDOW_WIDTH-100)
+            bomb_y_pos = randint(-150, -100)
+            Bomb((bomb_x_pos, bomb_y_pos), bomb_group)
 
-    score.display()
-    ship_group.draw(display_surface)
-    laser_group.draw(display_surface)
-    meteor_group.draw(display_surface)
+        if event.type == heart_timer:
+            heart_x_pos = randint(100, WINDOW_WIDTH-100)
+            heart_y_pos = randint(-150, -100)
+            Heart((heart_x_pos, heart_y_pos), heart_group)
+
+        if event.type == fuel_timer:
+            fuel_x_pos = randint(100, WINDOW_WIDTH-100)
+            fuel_y_pos = randint(-150, -100)
+            Fuel((fuel_x_pos, fuel_y_pos), heart_group)
+
+    display_surface.blit(back_ground, (0, 0))
 
     ship_group.update()
     laser_group.update()
     meteor_group.update()
+    bomb_group.update()
+    heart_group.update()
+    fuel_group.update()
+
+    score.display()
+    life.display()
+
+    ship_group.draw(display_surface)
+    laser_group.draw(display_surface)
+    meteor_group.draw(display_surface)
+    bomb_group.draw(display_surface)
+    heart_group.draw(display_surface)
+    fuel_group.draw(display_surface)
 
     pygame.display.update()
