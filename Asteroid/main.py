@@ -143,15 +143,6 @@ explosion_sound = pygame.mixer.Sound("sounds/explosion.wav")
 laser_sound = pygame.mixer.Sound("sounds/laser.ogg")
 background_sound = pygame.mixer.Sound("sounds/music.wav")
 
-text = font.render("SPACE WARS", True, (200, 200, 200))
-text_rect = text.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2)))
-
-text_credit = font_credit.render("Created By : Imisioluwa Isong", True, (200, 200, 200))
-text_credit_rect = text_credit.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) + 100))
-
-text_credit1 = font_credit.render("Idea By : Uchiha Madara", True, (200, 200, 200))
-text_credit1_rect = text_credit1.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) + 150))
-
 can_shoot = True
 rapid = True
 shoot_time = False
@@ -189,7 +180,7 @@ while True:
             sys.exit()
 
         # Tapping button to release laser
-        if event.type == pygame.MOUSEBUTTONDOWN and can_shoot and text_credit1_rect.y <= -20 and life_left >= 0:
+        if event.type == pygame.MOUSEBUTTONDOWN and can_shoot and life_left >= 0:
             # if ship_rect.center == [(0, WINDOW_WIDTH), (620, WINDOW_HEIGHT)]:
             laser_rect = laser.get_rect(midbottom=ship_rect.midtop)
             laser_list.append(laser_rect)
@@ -199,7 +190,7 @@ while True:
             laser_sound.set_volume(0.2)
 
         # Automatic release of meteor
-        if event.type == meteor_timer and text_credit1_rect.y <= -20 and life_left >= 0:
+        if event.type == meteor_timer and life_left >= 0:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             meteor_rect = meteor.get_rect(center=(x_pos, y_pos))
@@ -214,7 +205,7 @@ while True:
                 has_fuel = True
                 rapid_duration = pygame.time.get_ticks() + 10000
 
-        if event.type == laser_timer and text_credit1_rect.y <= -20 and life_left >= 0:
+        if event.type == laser_timer and life_left >= 0:
             if has_fuel and pygame.time.get_ticks() < rapid_duration:
                 x_pos = randint(0, WINDOW_WIDTH)
                 y_pos = randint(WINDOW_HEIGHT - 10, WINDOW_HEIGHT)
@@ -223,7 +214,7 @@ while True:
                 rapid_laser_update(laser_list_p)
 
         # Automatic release of the life
-        if event.type == heart_timer and text_credit1_rect.y <= -20 and life_left >= 0:
+        if event.type == heart_timer and life_left >= 0:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             heart_rect = heart.get_rect(center=(x_pos, y_pos))
@@ -231,7 +222,7 @@ while True:
             heart_list.append((heart_rect, direction))
 
         # Automatic release of bomb
-        if event.type == bomb_timer and text_credit1_rect.y <= -20 and life_left >= 0:
+        if event.type == bomb_timer and life_left >= 0:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             bomb_rect = bomb.get_rect(center=(x_pos, y_pos))
@@ -239,7 +230,7 @@ while True:
             bomb_list.append((bomb_rect, direction))
 
         # Automatic release of fuel
-        if event.type == fuel_timer and text_credit1_rect.y <= -20 and life_left >= 0:
+        if event.type == fuel_timer and life_left >= 0:
             x_pos = randint(100, WINDOW_WIDTH - 100)
             y_pos = randint(-100, -50)
             fuel_rect = fuel.get_rect(center=(x_pos, y_pos))
@@ -253,105 +244,89 @@ while True:
         display_surface.fill((255, 255, 255))
         display_surface.blit(background, (0, 0))
 
-        if text_rect.y > -80:
-            text_rect.y -= round(150 * dt)
+        ship_rect.center = pygame.mouse.get_pos()
 
-        if text_credit_rect.y > -20:
-            text_credit_rect.y -= round(150 * dt)
+        laser_update(laser_list)
+        score_display()
+        can_shoot = shoot_timer(can_shoot, 250)
 
-        if text_credit1_rect.y > -20:
-            text_credit1_rect.y -= round(150 * dt)
+        meteor_update(meteor_list)
+        heart_update(heart_list)
+        bomb_update(bomb_list)
+        fuel_movement(fuel_list)
 
-        pygame.draw.rect(display_surface, "blue", text_rect.inflate(50, 30), width=7, border_radius=5)
-        display_surface.blit(text, text_rect)
-        display_surface.blit(text_credit, text_credit_rect)
-        display_surface.blit(text_credit1, text_credit1_rect)
+        display_surface.blit(ship_surf, ship_rect)
+        score_display()
+        life_display()
 
-        if text_credit1_rect.y <= -20:
+        for rect in laser_list:
+            display_surface.blit(laser, rect)
 
-            ship_rect.center = pygame.mouse.get_pos()
+        for meteor_tuple in meteor_list:
+            display_surface.blit(meteor, meteor_tuple[0])
 
-            laser_update(laser_list)
-            score_display()
-            can_shoot = shoot_timer(can_shoot, 250)
+        for bomb_tuple in bomb_list:
+            display_surface.blit(bomb, bomb_tuple[0])
 
-            meteor_update(meteor_list)
-            heart_update(heart_list)
-            bomb_update(bomb_list)
-            fuel_movement(fuel_list)
+        for heart_tuple in heart_list:
+            display_surface.blit(heart, heart_tuple[0])
 
-            display_surface.blit(ship_surf, ship_rect)
-            score_display()
-            life_display()
+        for fuel_tuple in fuel_list:
+            display_surface.blit(fuel, fuel_tuple[0])
 
-            for rect in laser_list:
-                display_surface.blit(laser, rect)
-
-            for meteor_tuple in meteor_list:
-                display_surface.blit(meteor, meteor_tuple[0])
-
-            for bomb_tuple in bomb_list:
-                display_surface.blit(bomb, bomb_tuple[0])
-
-            for heart_tuple in heart_list:
-                display_surface.blit(heart, heart_tuple[0])
-
-            for fuel_tuple in fuel_list:
-                display_surface.blit(fuel, fuel_tuple[0])
-
-            for laser_rect_p in laser_list_p:
-                rapid_laser_update(laser_list_p)
-                display_surface.blit(laser, laser_rect_p)
+        for laser_rect_p in laser_list_p:
+            rapid_laser_update(laser_list_p)
+            display_surface.blit(laser, laser_rect_p)
 
             # Ship in contact with Meteor
-            for meteor_tuple in meteor_list:
-                meteor_rect = meteor_tuple[0]
-                if meteor_rect.colliderect(ship_rect):
-                    meteor_list.remove(meteor_tuple)
-                    life_left -= 1
+        for meteor_tuple in meteor_list:
+            meteor_rect = meteor_tuple[0]
+            if meteor_rect.colliderect(ship_rect):
+                meteor_list.remove(meteor_tuple)
+                life_left -= 1
 
             # Ship in contact with Bomb
-            for bomb_tuple in bomb_list:
-                bomb_rect = bomb_tuple[0]
-                if bomb_rect.colliderect(ship_rect):
-                    bomb_list.remove(bomb_tuple)
-                    life_left -= 2
+        for bomb_tuple in bomb_list:
+            bomb_rect = bomb_tuple[0]
+            if bomb_rect.colliderect(ship_rect):
+                bomb_list.remove(bomb_tuple)
+                life_left -= 2
 
             # Laser Hitting Meteor
-            for meteor_tuple in meteor_list:
-                for laser_rect in laser_list:
-                    meteor_rect = meteor_tuple[0]
-                    if laser_rect.colliderect(meteor_rect):
-                        laser_list.remove(laser_rect)
-                        meteor_list.remove(meteor_tuple)
-                        total_score += 1
-                        explosion_sound.play()
-                        explosion_sound.set_volume(0.2)
+        for meteor_tuple in meteor_list:
+            for laser_rect in laser_list:
+                meteor_rect = meteor_tuple[0]
+                if laser_rect.colliderect(meteor_rect):
+                    laser_list.remove(laser_rect)
+                    meteor_list.remove(meteor_tuple)
+                    total_score += 1
+                    explosion_sound.play()
+                    explosion_sound.set_volume(0.2)
 
             # Meteor Passing pass player to bottom of screen
-            for meteor_tuple in meteor_list:
-                meteor_rect = meteor_tuple[0]
-                if meteor_rect.bottom > WINDOW_HEIGHT:
-                    life_left -= 1
-                    meteor_list.remove(meteor_tuple)
+        for meteor_tuple in meteor_list:
+            meteor_rect = meteor_tuple[0]
+            if meteor_rect.bottom > WINDOW_HEIGHT:
+                life_left -= 1
+                meteor_list.remove(meteor_tuple)
 
             # Ship hitting heart for life
-            for heart_tuple in heart_list:
-                heart_rect = heart_tuple[0]
-                if heart_rect.colliderect(ship_rect):
-                    heart_list.remove(heart_tuple)
-                    if life_left < 5:
-                        life_left += 1
+        for heart_tuple in heart_list:
+            heart_rect = heart_tuple[0]
+            if heart_rect.colliderect(ship_rect):
+                heart_list.remove(heart_tuple)
+                if life_left < 5:
+                    life_left += 1
 
-            for laser_rect_p in laser_list_p:
-                for meteor_tuple in meteor_list:
-                    meteor_rect = meteor_tuple[0]
-                    if laser_rect_p.colliderect(meteor_rect):
-                        laser_list_p.remove(laser_rect_p)
-                        meteor_list.remove(meteor_tuple)
-                        total_score += 1
-                        explosion_sound.play()
-                        explosion_sound.set_volume(0.2)
+        for laser_rect_p in laser_list_p:
+            for meteor_tuple in meteor_list:
+                meteor_rect = meteor_tuple[0]
+                if laser_rect_p.colliderect(meteor_rect):
+                    laser_list_p.remove(laser_rect_p)
+                    meteor_list.remove(meteor_tuple)
+                    total_score += 1
+                    explosion_sound.play()
+                    explosion_sound.set_volume(0.2)
 
         # Congratulating player when he gets a particular high score
         if total_score == 50:
