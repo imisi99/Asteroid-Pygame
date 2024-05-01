@@ -1,6 +1,8 @@
 # Asteroid-Pygame
 This is a basic space shooting game built using pygame and pyinstaller.  
-It is an endless game which it's main objective is for the player to have fun.   
+It is an endless game which it's main objective is for the player to have fun.      
+The project has two forms which are [pygame only]() and [pygame with class]()   
+There is very little difference between the two projects, it's just that the one with classes is more efficient and some certain methods were allowed for better game experience which isn't quite noticeable.   
 What the game entails:
  - The game can be played by using a mouse or touchpad only
  - Players can move the spaceship anywhere on the screen to avoid the incoming meteors
@@ -18,13 +20,13 @@ What the game entails:
    - Press the q button to quit the game    
     
 
-The game has been made into an executable file using pyinstaller therefore there is no need for any package installation to run the game, It can be downloaded [here](https://github.com/imisi99/Asteroid-Pygame/tree/main/asteroid%20shooter).    
+The game has been made into an executable file using pyinstaller therefore there is no need for any package installation to run the game, It can be downloaded [here]() or [here]().    
 Here is the installation Process:
- - You can clone the [folder](https://github.com/imisi99/Asteroid-Pygame/tree/main/asteroid%20shooter) 
+ - You can clone any of these [pygame without class]() or [pygame with class]()
  - Once you have cloned the folder you can run the game by clicking on the executable file main.exe
  - Alternatively you can create a shortcut of the executable file and place it on your desktop for easy access
 
-To run the game on your terminal however you would run have to clone the [repo](https://github.com/imisi99/Asteroid-Pygame) and run this command on your terminal:
+To run the game on your terminal however you would have to clone this [repo]() or this [one with class]() and run this command on your terminal:
  -      pip intall requirements.txt
  -      python main.py
 
