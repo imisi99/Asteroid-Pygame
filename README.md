@@ -1,7 +1,7 @@
 # Asteroid-Pygame
 This is a basic space shooting game built using pygame and pyinstaller.  
 It is an endless game which it's main objective is for the player to have fun.      
-The project has two forms which are [pygame only]() and [pygame with class]()   
+The project has two forms which are [pygame only](https://github.com/imisi99/Asteroid-Pygame/tree/main/Asteroid) and [pygame with class](https://github.com/imisi99/Asteroid-Pygame/tree/main/Asteroid_Class)   
 There is very little difference between the two projects, it's just that the one with classes is more efficient and some certain methods were allowed for better game experience which isn't quite noticeable.   
 What the game entails:
  - The game can be played by using a mouse or touchpad only
@@ -20,14 +20,14 @@ What the game entails:
    - Press the q button to quit the game    
     
 
-The game has been made into an executable file using pyinstaller therefore there is no need for any package installation to run the game, It can be downloaded [here]() or [here]().    
+The game has been made into an executable file using pyinstaller therefore there is no need for any package installation to run the game, It can be downloaded here [without class](https://github.com/imisi99/Asteroid-Pygame/tree/main/Asteroid/asteroid) or [with class](https://github.com/imisi99/Asteroid-Pygame/tree/main/Asteroid_Class/asteroid).    
 Here is the installation Process:
- - You can clone any of these [pygame without class]() or [pygame with class]()
- - Once you have cloned the folder you can run the game by clicking on the executable file main.exe
+ - You can clone any of the project
+ - Once you have cloned the project navigate to the asteroid folder and run the game by clicking on the executable file main.exe
  - Alternatively you can create a shortcut of the executable file and place it on your desktop for easy access
 
-To run the game on your terminal however you would have to clone this [repo]() or this [one with class]() and run this command on your terminal:
+To run the game on your terminal however you would have to clone the project and navigate to the project you want to run and run this command on your terminal:
  -      pip intall requirements.txt
  -      python main.py
 
-It was fun creating the game and I hope you enjoy it if you did, you can star the repository and check out this [one](https://github.com/imisi99/OOP).
+It was fun creating the game and I hope you enjoy it if you did, you can star the repository
