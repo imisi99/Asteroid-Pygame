@@ -23,7 +23,7 @@ What the game entails:
 The game has been made into an executable file using pyinstaller therefore there is no need for any package installation to run the game, It can be downloaded here [without class](https://github.com/imisi99/Asteroid-Pygame/tree/main/Asteroid/asteroid) or [with class](https://github.com/imisi99/Asteroid-Pygame/tree/main/Asteroid_Class/asteroid).    
 Here is the installation Process:
  - You can clone any of the project
- - Once you have cloned the project navigate to the asteroid folder and run the game by clicking on the executable file main.exe
+ - Once you have cloned the project navigate to the asteroid folder and run the game by clicking on the executable file asteroid.exe
  - Alternatively you can create a shortcut of the executable file and place it on your desktop for easy access
 
 To run the game on your terminal however you would have to clone the project and navigate to the project you want to run and run this command on your terminal:
