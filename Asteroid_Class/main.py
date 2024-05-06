@@ -223,12 +223,15 @@ class Rapid(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=pos)
         self.pos = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2(0, -1)
-        self.speed = 1000
+        self.speed = 1500
+        self.collision_sound = pygame.mixer.Sound('./sounds/explosion.wav')
 
         self.mask = pygame.mask.from_surface(self.image)
 
     def meteor_collision(self):
         if pygame.sprite.spritecollide(self, meteor_group, True, pygame.sprite.collide_mask):
+            self.collision_sound.set_volume(0.2)
+            self.collision_sound.play()
             self.kill()
             ship.total_score += 1
 
