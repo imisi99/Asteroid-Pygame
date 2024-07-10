@@ -96,6 +96,30 @@ def life_display():
     display_surface.blit(life, life_rect)
 
 
+# High Score Display
+def high_score_display():
+    high_score = open('./graphics/highscore.txt', 'r').read()
+    if int(high_score) > total_score:
+        display = f"High Score: {high_score}"
+    else:
+        display = f"New High Score: {total_score}"
+    life = font_credit.render(display, True, (200, 200, 200))
+    life_rect = life.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) - 100))
+    pygame.draw.rect(display_surface, (200, 200, 200), life_rect.inflate(30, 30), width=5, border_radius=10)
+    display_surface.blit(life, life_rect)
+
+
+# Score Display
+def score_update():
+    high_score = open('graphics/highscore.txt', 'r').read()
+    if int(high_score) > total_score:
+        pass
+    else:
+        new_score = open('graphics/highscore.txt', 'w')
+        new_score.write(str(total_score))
+        new_score.close()
+
+
 # Shooting Timer for normal laser
 def shoot_timer(can_shoot_p, duration=0):
     if not can_shoot_p:
@@ -349,6 +373,8 @@ while True:
 
     if life_left < 0:
         score_display()
+        high_score_display()
+        score_update()
         text_fail = font_credit.render("Game Over Press P to play again or Q to quit the game", True, (200, 200, 200))
         text_fail_rect = text_fail.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2)))
         display_surface.blit(text_fail, text_fail_rect)
