@@ -65,6 +65,26 @@ class Ship(pygame.sprite.Sprite):
         pygame.draw.rect(display_surface, (200, 200, 200), text_rect.inflate(30, 30), width=5, border_radius=10)
         display_surface.blit(text_surf, text_rect)
 
+    def high_score_display(self):
+        high_score = open('graphics/highscore.txt', 'r').read()
+        if int(high_score) > self.total_score:
+            text = f"High Score: {high_score}"
+        else:
+            text = f'New High Score: {self.total_score}'
+        text_surf = self.font.render(text, True, (200, 200, 200))
+        text_rect = text_surf.get_rect(center=((WINDOW_WIDTH / 2), (WINDOW_HEIGHT / 2) - 100))
+        pygame.draw.rect(display_surface, (200, 200, 200), text_rect.inflate(30, 30), width=5, border_radius=10)
+        display_surface.blit(text_surf, text_rect)
+
+    def score_update(self):
+        high_score = open('graphics/highscore.txt', 'r').read()
+        if int(high_score) > self.total_score:
+            pass
+        else:
+            new_score = open('graphics/highscore.txt', 'w')
+            new_score.write(str(self.total_score))
+            new_score.close()
+
     def get_input(self):
         pos = pygame.mouse.get_pos()
         self.rect.center = pos
@@ -102,6 +122,9 @@ class Ship(pygame.sprite.Sprite):
         self.score_display()
         self.life_display()
         self.congratulations()
+        if self.life_left < 0:
+            self.high_score_display()
+            self.score_update()
 
 
 class Laser(pygame.sprite.Sprite):
